@@ -1,0 +1,176 @@
+Grammar
+
+    0 $accept: document $end
+
+    1 document: nodeList
+
+    2 nodeList: declaration
+    3         | nodeList declaration
+
+    4 declaration: TYPE NAME '=' value
+
+    5 value: V_INTEGER
+    6      | V_FLOAT
+    7      | V_STRING
+    8      | '{' nodeList '}'
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'=' (61) 4
+'{' (123) 8
+'}' (125) 8
+error (256)
+TYPE (258) 4
+NAME (259) 4
+V_INTEGER (260) 5
+V_FLOAT (261) 6
+V_STRING (262) 7
+
+
+Nonterminals, with rules where they appear
+
+$accept (11)
+    on left: 0
+document (12)
+    on left: 1, on right: 0
+nodeList (13)
+    on left: 2 3, on right: 1 3 8
+declaration (14)
+    on left: 4, on right: 2 3
+value (15)
+    on left: 5 6 7 8, on right: 4
+
+
+State 0
+
+    0 $accept: . document $end
+
+    TYPE  shift, and go to state 1
+
+    document     go to state 2
+    nodeList     go to state 3
+    declaration  go to state 4
+
+
+State 1
+
+    4 declaration: TYPE . NAME '=' value
+
+    NAME  shift, and go to state 5
+
+
+State 2
+
+    0 $accept: document . $end
+
+    $end  shift, and go to state 6
+
+
+State 3
+
+    1 document: nodeList .
+    3 nodeList: nodeList . declaration
+
+    TYPE  shift, and go to state 1
+
+    $default  reduce using rule 1 (document)
+
+    declaration  go to state 7
+
+
+State 4
+
+    2 nodeList: declaration .
+
+    $default  reduce using rule 2 (nodeList)
+
+
+State 5
+
+    4 declaration: TYPE NAME . '=' value
+
+    '='  shift, and go to state 8
+
+
+State 6
+
+    0 $accept: document $end .
+
+    $default  accept
+
+
+State 7
+
+    3 nodeList: nodeList declaration .
+
+    $default  reduce using rule 3 (nodeList)
+
+
+State 8
+
+    4 declaration: TYPE NAME '=' . value
+
+    V_INTEGER  shift, and go to state 9
+    V_FLOAT    shift, and go to state 10
+    V_STRING   shift, and go to state 11
+    '{'        shift, and go to state 12
+
+    value  go to state 13
+
+
+State 9
+
+    5 value: V_INTEGER .
+
+    $default  reduce using rule 5 (value)
+
+
+State 10
+
+    6 value: V_FLOAT .
+
+    $default  reduce using rule 6 (value)
+
+
+State 11
+
+    7 value: V_STRING .
+
+    $default  reduce using rule 7 (value)
+
+
+State 12
+
+    8 value: '{' . nodeList '}'
+
+    TYPE  shift, and go to state 1
+
+    nodeList     go to state 14
+    declaration  go to state 4
+
+
+State 13
+
+    4 declaration: TYPE NAME '=' value .
+
+    $default  reduce using rule 4 (declaration)
+
+
+State 14
+
+    3 nodeList: nodeList . declaration
+    8 value: '{' nodeList . '}'
+
+    TYPE  shift, and go to state 1
+    '}'   shift, and go to state 15
+
+    declaration  go to state 7
+
+
+State 15
+
+    8 value: '{' nodeList '}' .
+
+    $default  reduce using rule 8 (value)
