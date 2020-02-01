@@ -72,6 +72,10 @@ template <typename T> class Node : public NodeBase {
         std::string getTypeName() {
             return getDemangledTypename(typeid(T));
         }
+        
+        size_t getElementCount() {
+        	return elementCount;
+        }
 
         std::string getValueString() {
             std::stringstream stream;
