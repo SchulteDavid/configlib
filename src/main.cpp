@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <node.h>
+#include <configloading.h>
 
 #include "parser.h"
 
@@ -20,7 +21,7 @@ int main(int argc, char ** argv) {
 
     std::shared_ptr<Node<double>> test = comp->getNode<double>("dTest");
 
-    std::shared_ptr<NodeCompound> root = parseFile("test.conf");
+    std::shared_ptr<NodeCompound> root = config::parseFile("test.conf");
 
     std::cout << root->getNode<int32_t>("testInt")->getElement(0) << std::endl;
     std::cout << root->getNode<double>("doubleVal")->getElement(2) << std::endl;

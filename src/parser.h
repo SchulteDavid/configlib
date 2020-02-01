@@ -55,8 +55,6 @@ struct value_list_t {
 
 };
 
-std::shared_ptr<NodeCompound> parseFile(std::string fname);
-
 extern "C" {
 
 #endif // __cplusplus

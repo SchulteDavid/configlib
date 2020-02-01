@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string.h>
 
+#include <configloading.h>
+
 std::string getDemangledTypename(const std::type_info & typeinfo) {
 
     size_t demangle_size = 256;
@@ -321,7 +323,7 @@ std::ostream & operator<< (std::ostream & stream, std::shared_ptr<NodeCompound> 
 extern "C" int confparse(node_list_t ** ls);
 extern "C" FILE * confin;
 
-std::shared_ptr<NodeCompound> parseFile(std::string fname) {
+std::shared_ptr<NodeCompound> config::parseFile(std::string fname) {
 
     confin = fopen(fname.c_str(), "r");
     node_list_t * tmpList;
