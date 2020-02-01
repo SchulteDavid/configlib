@@ -29,7 +29,7 @@ char * duplicateString(char * str);
 
 [a-zA-Z\_][a-zA-Z\_0-9]*    {conflval.str = duplicateString(conftext); return NAME;}
 
-[=\{\}]                         {return *conftext;}
+[=\{\}\[\]\,]               {return *conftext;}
 [\t\r\f ]	                {}
 "\n"                        {}
 

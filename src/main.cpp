@@ -22,6 +22,10 @@ int main(int argc, char ** argv) {
 
     std::shared_ptr<NodeCompound> root = parseFile("test.conf");
 
-    std::cout << root << std::endl;
+    std::cout << root->getNode<int32_t>("testInt")->getElement(0) << std::endl;
+    std::cout << root->getNode<double>("doubleVal")->getElement(2) << std::endl;
+
+    auto testCompArray = root->getNode<std::shared_ptr<NodeCompound>>("testCompArray");
+    std::cout << testCompArray->getElement(0)->getNode<int32_t>("test")->getElement(0) << std::endl;
 
 }

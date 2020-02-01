@@ -27,6 +27,7 @@ value_t createValue(VALUE_TYPE_E type, long lData, double dData, char * sData, n
     value_t val;
     node_t * node;
     node_list_t * list;
+    value_list_t * valueList;
 
 }
 
@@ -39,6 +40,7 @@ value_t createValue(VALUE_TYPE_E type, long lData, double dData, char * sData, n
 %type<val> value
 %type<node> declaration
 %type<list> nodeList
+%type<valueList> valueList
 
 %parse-param {node_list_t ** parseList}
 
@@ -53,7 +55,13 @@ nodeList:
     | nodeList declaration          {$$ = nodeListAppend($1, $2);}
 
 declaration:
-    TYPE NAME '=' value             {$$ = buildNode($1, $2, $4);}
+    TYPE NAME '=' value                    {$$ = buildNode($1, $2, $4);}
+    | TYPE NAME '=' '[' valueList ']'       {$$ = buildNodeList($1, $2, $5);}
+    ;
+
+valueList:
+    value                           {$$ = valueListCreate($1);}
+    | valueList ',' value           {$$ = valueListAppend($1, $3);}
     ;
 
 value:

@@ -80,9 +80,10 @@ union YYSTYPE
     value_t val;
     node_t * node;
     node_list_t * list;
+    value_list_t * valueList;
 
 
-#line 86 "generated/src/config.parser.h" /* yacc.c:1909  */
+#line 87 "generated/src/config.parser.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

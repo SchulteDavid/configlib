@@ -110,6 +110,159 @@ std::shared_ptr<NodeCompound> buildCompoundNode(value_t value) {
 
 }
 
+std::shared_ptr<NodeBase> buildIntNodeList(VALUE_TYPE_E type, value_list_t * values) {
+
+    if (type == TYPE_INT32) {
+
+        std::vector<int32_t> tmpData(values->values.size());
+
+        for (unsigned int i = 0; i < values->values.size(); ++i) {
+
+            if (values->values[i].type != TYPE_INT64 && values->values[i].type != TYPE_INT32) {
+                throw std::runtime_error("Wrong type in int array!");
+            }
+
+            tmpData[i] = values->values[i].v.i;
+
+        }
+
+        delete values;
+
+        return std::shared_ptr<NodeBase>(new Node<int32_t>(tmpData.size(), tmpData.data()));
+
+    } else {
+
+        std::vector<int64_t> tmpData(values->values.size());
+
+        for (unsigned int i = 0; i < values->values.size(); ++i) {
+
+            if (values->values[i].type != TYPE_INT64 && values->values[i].type != TYPE_INT32) {
+                throw std::runtime_error("Wrong type in long array!");
+            }
+
+            tmpData[i] = values->values[i].v.i;
+
+        }
+
+        delete values;
+
+        return std::shared_ptr<NodeBase>(new Node<int64_t>(tmpData.size(), tmpData.data()));
+
+    }
+
+}
+
+std::shared_ptr<NodeBase> buildFloatNodeList(VALUE_TYPE_E type, value_list_t * values) {
+
+    if (type == TYPE_FLOAT32) {
+
+        std::vector<float> tmpData(values->values.size());
+
+        for (unsigned int i = 0; i < values->values.size(); ++i) {
+
+            if (values->values[i].type != TYPE_FLOAT64 && values->values[i].type != TYPE_FLOAT32 && values->values[i].type != TYPE_INT64 && values->values[i].type != TYPE_INT32) {
+                throw std::runtime_error("Wrong type in float array!");
+            }
+
+            if (values->values[i].type == TYPE_INT64 || values->values[i].type == TYPE_INT32) {
+
+                tmpData[i] = values->values[i].v.i;
+
+            } else {
+
+                tmpData[i] = values->values[i].v.d;
+
+            }
+
+        }
+
+        delete values;
+
+        return std::shared_ptr<NodeBase>(new Node<float>(tmpData.size(), tmpData.data()));
+
+    } else {
+
+        std::vector<double> tmpData(values->values.size());
+
+        for (unsigned int i = 0; i < values->values.size(); ++i) {
+
+            if (values->values[i].type != TYPE_FLOAT64 && values->values[i].type != TYPE_FLOAT32 && values->values[i].type != TYPE_INT64 && values->values[i].type != TYPE_INT32) {
+                std::cerr << values->values[i].type << std::endl;
+                throw std::runtime_error("Wrong type in double array!");
+            }
+
+            if (values->values[i].type == TYPE_INT64 || values->values[i].type == TYPE_INT32) {
+
+                tmpData[i] = values->values[i].v.i;
+
+            } else {
+
+                tmpData[i] = values->values[i].v.d;
+
+            }
+
+        }
+
+        delete values;
+
+        return std::shared_ptr<NodeBase>(new Node<double>(tmpData.size(), tmpData.data()));
+
+    }
+
+}
+
+std::shared_ptr<Node<std::shared_ptr<NodeCompound>>> buildCompoundNodeList(value_list_t * values) {
+
+    std::vector<std::shared_ptr<NodeCompound>> nodes(values->values.size());
+
+    for (unsigned int i = 0; i < values->values.size(); ++i) {
+
+        nodes[i] = buildCompoundNode(values->values[i]);
+
+    }
+
+    delete values;
+
+    return std::shared_ptr<Node<std::shared_ptr<NodeCompound>>>(new Node<std::shared_ptr<NodeCompound>>(nodes.size(), nodes.data()));
+
+}
+
+node_t * buildNodeList(VALUE_TYPE_E type, char * name, value_list_t * values) {
+
+    std::shared_ptr<NodeBase> node;
+    std::string nodeName(name);
+
+    switch (type) {
+
+        case TYPE_INT32:
+        case TYPE_INT64:
+            node = buildIntNodeList(type, values);
+            break;
+
+        case TYPE_FLOAT32:
+        case TYPE_FLOAT64:
+            node = buildFloatNodeList(type, values);
+            break;
+
+        case TYPE_COMPOUND:
+            node = buildCompoundNodeList(values);
+            break;
+
+        default:
+            throw std::runtime_error("No such array supported");
+
+    }
+
+    node_t * res = new node_t();
+    res->n = node;
+    res->name = nodeName;
+
+    free(name);
+
+    return res;
+
+}
+
 node_t * buildNode(VALUE_TYPE_E type, char * name, value_t value) {
 
     std::shared_ptr<NodeBase> node;
@@ -204,6 +357,23 @@ node_list_t * nodeListAppend(node_list_t * ls, node_t * elem) {
 
     ls->nodes.push_back(*elem);
     delete elem;
+
+    return ls;
+
+}
+
+value_list_t * valueListCreate(value_t v) {
+
+    value_list_t * ls = new value_list_t();
+    ls->values.push_back(v);
+
+    return ls;
+
+}
+
+value_list_t * valueListAppend(value_list_t * ls, value_t v) {
+
+    ls->values.push_back(v);
 
     return ls;
 
