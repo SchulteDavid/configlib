@@ -1,11 +1,13 @@
-#ifndef _TEMPLATE_H
-#define _TEMPLATE_H
+#ifndef _NODE_H
+#define _NODE_H
 
 #include <memory>
 #include <typeinfo>
 #include <unordered_map>
 #include <ostream>
 #include <sstream>
+#include <vector>
+#include <iostream>
 
 #include <cxxabi.h>
 
@@ -126,114 +128,7 @@ template <typename T> class Node : public NodeBase {
 
 };
 
-class NodeCompound : public NodeBase {
-
-    public:
-        NodeCompound() {
-
-        }
-
-        virtual ~NodeCompound() {
-
-        }
-
-        std::shared_ptr<NodeBase> & operator[] (std::string name) {
-            return this->children[name];
-        }
-
-        void addChild(std::string name, std::shared_ptr<NodeBase> node) {
-            this->children[name] = node;
-        }
-
-        std::shared_ptr<NodeBase> getChild(std::string name) {
-            if (this->children.find(name) == children.end()) {
-                throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
-            }
-            return children[name];
-        }
-
-        template <typename T> std::shared_ptr<Node<T>> getNode(std::string name) {
-            if (this->children.find(name) == children.end()) {
-                throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
-            }
-                std::shared_ptr<Node<T>> tmp = std::dynamic_pointer_cast<Node<T>>(children[name]);
-                if (!tmp) {
-
-                    std::string msg("Child Node '");
-                    msg.append(name).append("' has wrong type: ");
-                    msg.append(children[name]->getTypeName());
-                    msg.append(" but requested was: ");
-                    msg.append(getDemangledTypename(typeid(T)));
-
-                    throw std::runtime_error(msg);
-                }
-                return tmp;
-
-        }
-
-        std::shared_ptr<Node<std::shared_ptr<NodeCompound>>> getNodeCompound(std::string name) {
-
-            if (this->children.find(name) == children.end()) {
-                throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
-            }
-
-            std::shared_ptr<Node<std::shared_ptr<NodeCompound>>> tmp = std::dynamic_pointer_cast<Node<std::shared_ptr<NodeCompound>>>(children[name]);
-            return tmp;
-
-        }
-
-        std::string getTypeName() {
-            return "comp";
-        }
-
-        std::unordered_map<std::string, std::shared_ptr<NodeBase>> getChildMap() {
-            return children;
-        }
-
-        std::string getValueString() {
-            std::stringstream stream;
-            stream << "{" << std::endl;
-            for (auto it : children) {
-                stream << it.first << " : " << it.second << std::endl;
-            }
-            stream << "}";
-            return stream.str();
-        }
-
-        void saveToFile(std::ostream & stream, std::string name, bool printName = true) {
-
-            if (printName)
-            stream << "comp " << name << " = ";
-
-            stream << "{" << std::endl;
-
-            for (auto it : children) {
-
-                it.second->saveToFile(stream, it.first);
-                stream << std::endl;
-
-            }
-
-            stream << "}";
-
-        }
-
-        void saveAsFile(std::ostream & stream) {
-
-            for (auto it : children) {
-
-                it.second->saveToFile(stream, it.first);
-                stream << std::endl;
-
-            }
-
-        }
-
-    private:
-
-        std::unordered_map<std::string, std::shared_ptr<NodeBase>> children;
-
-};
+class NodeCompound;
 
 template <> class Node<std::shared_ptr<NodeCompound>> : public NodeBase {
 
@@ -289,7 +184,7 @@ template <> class Node<std::shared_ptr<NodeCompound>> : public NodeBase {
 
             if (elementCount == 1) {
 
-                data.get()[0]->saveToFile(stream, "", false);
+                std::dynamic_pointer_cast<NodeBase>(data.get()[0])->saveToFile(stream, "", false);
 
             } else {
 
@@ -297,12 +192,12 @@ template <> class Node<std::shared_ptr<NodeCompound>> : public NodeBase {
 
                 for (unsigned int i = 0; i < elementCount-1; ++i) {
 
-                    data.get()[i]->saveToFile(stream, "", false);
+                    std::dynamic_pointer_cast<NodeBase>(data.get()[i])->saveToFile(stream, "", false);
                     stream << ", " << std::endl;
 
                 }
 
-                data.get()[elementCount-1]->saveToFile(stream, "", false);
+                std::dynamic_pointer_cast<NodeBase>(data.get()[elementCount-1])->saveToFile(stream, "", false);
 
                 stream << "]";
 
@@ -314,6 +209,135 @@ template <> class Node<std::shared_ptr<NodeCompound>> : public NodeBase {
 
         size_t elementCount;
         std::shared_ptr<std::shared_ptr<NodeCompound>> data;
+
+};
+
+class NodeCompound : public NodeBase {
+
+    public:
+        NodeCompound() {
+
+        }
+
+        virtual ~NodeCompound() {
+
+        }
+
+        std::shared_ptr<NodeBase> & operator[] (std::string name) {
+            return this->children[name];
+        }
+
+        void addChild(std::string name, std::shared_ptr<NodeBase> node) {
+            this->children[name] = node;
+        }
+
+        std::shared_ptr<NodeBase> getChild(std::string name) {
+            if (this->children.find(name) == children.end()) {
+                throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+            }
+            return children[name];
+        }
+
+        template <typename T> std::shared_ptr<Node<T>> getNode(std::string name) {
+            if (this->children.find(name) == children.end()) {
+                throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+            }
+                std::shared_ptr<Node<T>> tmp = std::dynamic_pointer_cast<Node<T>>(children[name]);
+                if (!tmp) {
+
+                    std::string msg("Child Node '");
+                    msg.append(name).append("' has wrong type: ");
+                    msg.append(children[name]->getTypeName());
+                    msg.append(" but requested was: ");
+                    msg.append(getDemangledTypename(typeid(T)));
+
+                    throw std::runtime_error(msg);
+                }
+                return tmp;
+
+        }
+
+        std::shared_ptr<NodeCompound> getNodeCompound(std::string name) {
+
+            if (this->children.find(name) == children.end()) {
+                throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+            }
+
+            std::shared_ptr<NodeCompound> tmp = std::dynamic_pointer_cast<NodeCompound>(children[name]);
+            std::cout << children[name]->getTypeName() << std::endl;
+            /*if (!tmp) {
+                throw std::runtime_error("Error while getting child compound!");
+            }*/
+            return tmp;
+
+        }
+
+        std::shared_ptr<NodeCompound> getSubcompound(std::string name) {
+
+            if (this->children.find(name) == children.end()) {
+                throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+            }
+
+            std::cout << "Demangled name " << getDemangledTypename(typeid(children[name])) << std::endl;
+
+            Node<std::shared_ptr<NodeCompound>> * node = (Node<std::shared_ptr<NodeCompound>> *) children[name].get();
+
+            std::cout << "Node has " << node->getElementCount() << " elements" << std::endl;
+
+            return node->getElement(0);
+
+        }
+
+        std::string getTypeName() {
+            return getDemangledTypename(typeid(*this));
+        }
+
+        std::unordered_map<std::string, std::shared_ptr<NodeBase>> getChildMap() {
+            return children;
+        }
+
+        std::string getValueString() {
+            std::stringstream stream;
+            stream << "{" << std::endl;
+            for (auto it : children) {
+                stream << it.first << " : " << it.second << std::endl;
+            }
+            stream << "}";
+            return stream.str();
+        }
+
+        void saveToFile(std::ostream & stream, std::string name, bool printName = true) {
+
+            if (printName)
+            stream << "comp " << name << " = ";
+
+            stream << "{" << std::endl;
+
+            for (auto it : children) {
+
+                it.second->saveToFile(stream, it.first);
+                stream << std::endl;
+
+            }
+
+            stream << "}";
+
+        }
+
+        void saveAsFile(std::ostream & stream) {
+
+            for (auto it : children) {
+
+                it.second->saveToFile(stream, it.first);
+                stream << std::endl;
+
+            }
+
+        }
+
+    private:
+
+        std::unordered_map<std::string, std::shared_ptr<NodeBase>> children;
 
 };
 
@@ -350,7 +374,7 @@ template <> class Node<char> : public NodeBase {
         }
 
         std::string getTypeName() {
-            return getDemangledTypename(typeid(std::shared_ptr<NodeCompound>));
+            return getDemangledTypename(typeid(char));
         }
 
         size_t getElementCount() {
@@ -379,6 +403,7 @@ template <> class Node<char> : public NodeBase {
 };
 
 }
+
 std::ostream & operator<< (std::ostream & stream, std::shared_ptr<config::NodeBase> node);
 std::ostream & operator<< (std::ostream & stream, std::shared_ptr<config::NodeCompound> node);
 

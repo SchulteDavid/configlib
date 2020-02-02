@@ -69,6 +69,10 @@ node_list_t * nodeListAppend(node_list_t * ls, node_t * elem);
 value_list_t * valueListCreate(value_t v);
 value_list_t * valueListAppend(value_list_t * ls, value_t v);
 
+void onParserError(char * msg);
+
+extern int confline;
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

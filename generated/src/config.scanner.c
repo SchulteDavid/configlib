@@ -1092,7 +1092,7 @@ case 15:
 /* rule 15 can match eol */
 YY_RULE_SETUP
 #line 34 "src/config.l"
-{}
+{confline++;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
@@ -2116,5 +2116,9 @@ char * duplicateString(char * str) {
 
     return dest;
 
+}
+
+void flushConfBuffer() {
+    YY_FLUSH_BUFFER;
 }
 

@@ -31,7 +31,7 @@ char * duplicateString(char * str);
 
 [=\{\}\[\]\,]               {return *conftext;}
 [\t\r\f ]	                {}
-"\n"                        {}
+"\n"                        {confline++;}
 
 %%
 
@@ -44,4 +44,8 @@ char * duplicateString(char * str) {
 
     return dest;
 
+}
+
+void flushConfBuffer() {
+    YY_FLUSH_BUFFER;
 }
