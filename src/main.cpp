@@ -3,6 +3,7 @@
 #include <memory>
 #include <node.h>
 #include <configloading.h>
+#include <fstream>
 
 #include "parser.h"
 
@@ -28,5 +29,11 @@ int main(int argc, char ** argv) {
 
     auto testCompArray = root->getNode<std::shared_ptr<NodeCompound>>("testCompArray");
     std::cout << testCompArray->getElement(0)->getNode<int32_t>("test")->getElement(0) << std::endl;
+
+    std::ofstream out("out.conf");
+
+    root->saveAsFile(out);
+
+    out.close();
 
 }

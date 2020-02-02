@@ -6,7 +6,7 @@
 
 #include <configloading.h>
 
-std::string getDemangledTypename(const std::type_info & typeinfo) {
+std::string config::getDemangledTypename(const std::type_info & typeinfo) {
 
     size_t demangle_size = 256;
     char * demagleSpace = (char *) malloc(sizeof(char) * demangle_size);
@@ -24,6 +24,22 @@ std::string getDemangledTypename(const std::type_info & typeinfo) {
     free(demagleSpace);
 
     return str;
+
+}
+
+std::string config::getFormatedTypename(const std::type_info & typeinfo) {
+
+    if (typeinfo == typeid(int32_t))
+        return std::string("int32");
+    else if (typeinfo == typeid(int64_t))
+        return std::string("int64");
+    else if (typeinfo == typeid(float))
+        return std::string("float32");
+    else if (typeinfo == typeid(double))
+        return std::string("float64");
+    else if (typeinfo == typeid(char))
+        return std::string("string");
+
 
 }
 
@@ -302,7 +318,7 @@ node_t * buildNode(VALUE_TYPE_E type, char * name, value_t value) {
 
 }
 
-std::ostream & operator<< (std::ostream & stream, std::shared_ptr<NodeBase> node) {
+std::ostream & operator<< (std::ostream & stream, std::shared_ptr<config::NodeBase> node) {
 
     return stream << node->getTypeName() << " -> " << node->getValueString();
 

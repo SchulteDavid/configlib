@@ -36,6 +36,8 @@ typedef struct value_t {
 #include <vector>
 #include <node.h>
 
+using namespace config;
+
 struct node_t {
 
     std::string name;
