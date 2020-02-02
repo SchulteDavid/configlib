@@ -333,7 +333,7 @@ template <> class Node<char> : public NodeBase {
 
         virtual ~Node() {
 
-            delete data;
+            delete[] data;
 
         }
 
