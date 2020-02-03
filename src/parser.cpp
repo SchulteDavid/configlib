@@ -6,6 +6,8 @@
 
 #include <configloading.h>
 
+using namespace config;
+
 std::string config::getDemangledTypename(const std::type_info & typeinfo) {
 
     size_t demangle_size = 256;
@@ -76,7 +78,7 @@ std::shared_ptr<NodeBase> buildFloatNode(VALUE_TYPE_E type, value_t value) {
             }
             break;
 
-        case TYPE_INT32:
+        case TYPE_INT64:
             if (type == TYPE_FLOAT32) {
                 float i = value.v.i;
                 return std::shared_ptr<NodeBase>(new Node<float>(1, &i));
@@ -241,7 +243,7 @@ std::shared_ptr<Node<std::shared_ptr<NodeCompound>>> buildCompoundNodeList(value
 
     delete values;
 
-    return std::shared_ptr<Node<std::shared_ptr<NodeCompound>>>(new Node<std::shared_ptr<NodeCompound>>(nodes.size(), nodes.data()));
+    return std::shared_ptr<Node<std::shared_ptr<NodeCompound>>>(new config::Node<std::shared_ptr<config::NodeCompound>>(nodes.size(), nodes.data()));
 
 }
 
@@ -339,20 +341,41 @@ std::ostream & operator<< (std::ostream & stream, std::shared_ptr<NodeCompound> 
 extern "C" int confparse(node_list_t ** ls);
 extern "C" FILE * confin;
 
+extern "C" void flushConfBuffer();
+
 std::shared_ptr<NodeCompound> config::parseFile(std::string fname) {
 
+    std::cout << "Parsing " << fname << std::endl;
+
+    //
     confin = fopen(fname.c_str(), "r");
+
     node_list_t * tmpList;
+    confline = 1;
+
+    //flushConfBuffer();
+
+    std::cout << "Starting parser" << std::endl;
+
     confparse(&tmpList);
 
+    std::cout << "conf data gotten" << std::endl;
+
     fclose(confin);
+
+    //flushConfBuffer();
 
     std::shared_ptr<NodeCompound> node(new NodeCompound());
     for (node_t n : tmpList->nodes) {
 
         node->addChild(n.name, n.n);
 
+
+        std::cout << n.name << std::endl;
+
     }
+
+    std::cout << "Done parsing " << fname << std::endl;
 
     delete tmpList;
 
@@ -394,5 +417,16 @@ value_list_t * valueListAppend(value_list_t * ls, value_t v) {
     ls->values.push_back(v);
 
     return ls;
+
+}
+
+int confline = 1;
+extern "C" char * conftext;
+
+void onParserError(char * msg) {
+
+  //throw std::runtime_error(msg);
+  std::cerr << "Error line " << confline << " : " << std::string(msg) << " conftext: " << std::string(conftext) << std::endl;
+  exit(1);
 
 }

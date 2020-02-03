@@ -5,7 +5,7 @@
 
 namespace config {
 
-std::shared_ptr<NodeCompound> parseFile(std::string filename);
+  std::shared_ptr<NodeCompound> parseFile(std::string filename);
 
 };
 
