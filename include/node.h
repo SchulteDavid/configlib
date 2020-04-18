@@ -238,6 +238,10 @@ class NodeCompound : public NodeBase {
             return children[name];
         }
 
+        bool hasChild(std::string name) {
+            return this->children.find(name) != this->children.end();
+        }
+
         template <typename T> std::shared_ptr<Node<T>> getNode(std::string name) {
             if (this->children.find(name) == children.end()) {
                 throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
