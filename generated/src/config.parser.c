@@ -1254,31 +1254,31 @@ yyreduce:
     {
         case 2:
 #line 50 "src/config.y" /* yacc.c:1646  */
-    {*parseList = (yyvsp[0].list);printf("Setting parseList\n");}
+    {*parseList = (yyvsp[0].list);}
 #line 1259 "generated/src/config.parser.c" /* yacc.c:1646  */
     break;
 
   case 3:
 #line 54 "src/config.y" /* yacc.c:1646  */
-    {(yyval.list) = nodeListCreate((yyvsp[0].node)); printf("Creating new NodeList\n");}
+    {(yyval.list) = nodeListCreate((yyvsp[0].node));}
 #line 1265 "generated/src/config.parser.c" /* yacc.c:1646  */
     break;
 
   case 4:
 #line 55 "src/config.y" /* yacc.c:1646  */
-    {(yyval.list) = nodeListAppend((yyvsp[-1].list), (yyvsp[0].node)); printf("Appending to NodeList\n");}
+    {(yyval.list) = nodeListAppend((yyvsp[-1].list), (yyvsp[0].node));}
 #line 1271 "generated/src/config.parser.c" /* yacc.c:1646  */
     break;
 
   case 5:
 #line 58 "src/config.y" /* yacc.c:1646  */
-    { printf("Declaring '%s'\n", (yyvsp[-2].str)); (yyval.node) = buildNode((yyvsp[-3].value_type), (yyvsp[-2].str), (yyvsp[0].val));}
+    {(yyval.node) = buildNode((yyvsp[-3].value_type), (yyvsp[-2].str), (yyvsp[0].val));}
 #line 1277 "generated/src/config.parser.c" /* yacc.c:1646  */
     break;
 
   case 6:
 #line 59 "src/config.y" /* yacc.c:1646  */
-    { printf("Declaring '%s'\n", (yyvsp[-4].str)); (yyval.node) = buildNodeList((yyvsp[-5].value_type), (yyvsp[-4].str), (yyvsp[-1].valueList));}
+    {(yyval.node) = buildNodeList((yyvsp[-5].value_type), (yyvsp[-4].str), (yyvsp[-1].valueList));}
 #line 1283 "generated/src/config.parser.c" /* yacc.c:1646  */
     break;
 
@@ -1296,25 +1296,25 @@ yyreduce:
 
   case 9:
 #line 68 "src/config.y" /* yacc.c:1646  */
-    {(yyval.val) = createValue(TYPE_INT64, (yyvsp[0].i), 0, NULL, NULL); printf("Created Int value\n");}
+    {(yyval.val) = createValue(TYPE_INT64, (yyvsp[0].i), 0, NULL, NULL);}
 #line 1301 "generated/src/config.parser.c" /* yacc.c:1646  */
     break;
 
   case 10:
 #line 69 "src/config.y" /* yacc.c:1646  */
-    {(yyval.val) = createValue(TYPE_FLOAT64, 0, (yyvsp[0].f), NULL, NULL);printf("Created Double value\n");}
+    {(yyval.val) = createValue(TYPE_FLOAT64, 0, (yyvsp[0].f), NULL, NULL);}
 #line 1307 "generated/src/config.parser.c" /* yacc.c:1646  */
     break;
 
   case 11:
 #line 70 "src/config.y" /* yacc.c:1646  */
-    {(yyval.val) = createValue(TYPE_STRING, 0, 0, (yyvsp[0].str), NULL);printf("Created String value\n");}
+    {(yyval.val) = createValue(TYPE_STRING, 0, 0, (yyvsp[0].str), NULL);}
 #line 1313 "generated/src/config.parser.c" /* yacc.c:1646  */
     break;
 
   case 12:
 #line 71 "src/config.y" /* yacc.c:1646  */
-    {(yyval.val) = createValue(TYPE_COMPOUND, 0, 0, NULL, (yyvsp[-1].list));printf("Created Comp value\n");}
+    {(yyval.val) = createValue(TYPE_COMPOUND, 0, 0, NULL, (yyvsp[-1].list));}
 #line 1319 "generated/src/config.parser.c" /* yacc.c:1646  */
     break;
 

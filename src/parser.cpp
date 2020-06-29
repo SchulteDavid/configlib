@@ -344,9 +344,6 @@ extern "C" FILE * confin;
 extern "C" void flushConfBuffer();
 
 std::shared_ptr<NodeCompound> config::parseFile(std::string fname) {
-
-    std::cout << "Parsing " << fname << std::endl;
-
     //
     confin = fopen(fname.c_str(), "r");
 
@@ -355,11 +352,7 @@ std::shared_ptr<NodeCompound> config::parseFile(std::string fname) {
 
     //flushConfBuffer();
 
-    std::cout << "Starting parser" << std::endl;
-
     confparse(&tmpList);
-
-    std::cout << "conf data gotten" << std::endl;
 
     fclose(confin);
 
@@ -370,12 +363,7 @@ std::shared_ptr<NodeCompound> config::parseFile(std::string fname) {
 
         node->addChild(n.name, n.n);
 
-
-        std::cout << n.name << std::endl;
-
     }
-
-    std::cout << "Done parsing " << fname << std::endl;
 
     delete tmpList;
 
