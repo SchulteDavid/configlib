@@ -65,11 +65,11 @@ template <typename T> class Node : public NodeBase {
 
         }
 
-        T & operator[] (int i) {
+        T & operator[] (size_t i) {
             return data.get()[i];
         }
 
-        const T & getElement(unsigned int i) {
+        const T & getElement(size_t i) {
             return data.get()[i];
         }
 
@@ -148,11 +148,11 @@ template <> class Node<std::shared_ptr<NodeCompound>> : public NodeBase {
 
         }
 
-        std::shared_ptr<NodeCompound> & operator[] (int i) {
+        std::shared_ptr<NodeCompound> & operator[] (size_t i) {
             return data.get()[i];
         }
 
-        const std::shared_ptr<NodeCompound> & getElement(unsigned int i) {
+        const std::shared_ptr<NodeCompound> & getElement(size_t i) {
             return data.get()[i];
         }
 
@@ -365,7 +365,7 @@ template <> class Node<char> : public NodeBase {
 
         }
 
-        char & operator[] (int i) {
+        char & operator[] (size_t i) {
             return data[i];
         }
 
