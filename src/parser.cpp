@@ -350,6 +350,10 @@ std::shared_ptr<NodeCompound> config::parseFile(std::string fname) {
     //
     confin = fopen(fname.c_str(), "r");
 
+    if (!confin) {
+      throw std::runtime_error("No Such file");
+    }
+
     node_list_t * tmpList;
     confline = 1;
 
