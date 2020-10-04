@@ -6,6 +6,7 @@
 namespace config {
 
   std::shared_ptr<NodeCompound> parseFile(std::string filename);
+  void save(std::shared_ptr<NodeCompound> node, std::ostream & file);
 
 };
 

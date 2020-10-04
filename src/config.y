@@ -47,16 +47,16 @@ value_t createValue(VALUE_TYPE_E type, long lData, double dData, char * sData, n
 %%
 
 document:
-    nodeList                        {*parseList = $1;printf("Setting parseList\n");}
+    nodeList                        {*parseList = $1;}
     ;
 
 nodeList:
-    declaration                     {$$ = nodeListCreate($1); printf("Creating new NodeList\n");}
-    | nodeList declaration          {$$ = nodeListAppend($1, $2); printf("Appending to NodeList\n");}
+    declaration                     {$$ = nodeListCreate($1);}
+    | nodeList declaration          {$$ = nodeListAppend($1, $2);}
 
 declaration:
-    TYPE NAME '=' value                    { printf("Declaring '%s'\n", $2); $$ = buildNode($1, $2, $4);}
-    | TYPE NAME '=' '[' valueList ']'      { printf("Declaring '%s'\n", $2); $$ = buildNodeList($1, $2, $5);}
+    TYPE NAME '=' value                    {$$ = buildNode($1, $2, $4);}
+    | TYPE NAME '=' '[' valueList ']'      {$$ = buildNodeList($1, $2, $5);}
     ;
 
 valueList:
@@ -65,10 +65,10 @@ valueList:
     ;
 
 value:
-    V_INTEGER                       {$$ = createValue(TYPE_INT64, $1, 0, NULL, NULL); printf("Created Int value\n");}
-    |V_FLOAT                        {$$ = createValue(TYPE_FLOAT64, 0, $1, NULL, NULL);printf("Created Double value\n");}
-    |V_STRING                       {$$ = createValue(TYPE_STRING, 0, 0, $1, NULL);printf("Created String value\n");}
-    |'{' nodeList '}'               {$$ = createValue(TYPE_COMPOUND, 0, 0, NULL, $2);printf("Created Comp value\n");}
+    V_INTEGER                       {$$ = createValue(TYPE_INT64, $1, 0, NULL, NULL);}
+    |V_FLOAT                        {$$ = createValue(TYPE_FLOAT64, 0, $1, NULL, NULL);}
+    |V_STRING                       {$$ = createValue(TYPE_STRING, 0, 0, $1, NULL);}
+    |'{' nodeList '}'               {$$ = createValue(TYPE_COMPOUND, 0, 0, NULL, $2);}
     ;
 
 %%
