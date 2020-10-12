@@ -13,398 +13,410 @@
 
 namespace config {
 
-/** Returns the demangled name of the type given as template argument **/
-std::string getDemangledTypename(const std::type_info & typeinfo);
+  /** Returns the demangled name of the type given as template argument **/
+  std::string getDemangledTypename(const std::type_info & typeinfo);
 
-std::string getFormatedTypename(const std::type_info & typeinfo);
+  std::string getFormatedTypename(const std::type_info & typeinfo);
 
-class NodeBase {
+  class NodeBase {
 
-    public:
-        NodeBase() {
+  public:
+    NodeBase() {
 
-        }
+    }
 
-        virtual ~NodeBase() {
+    virtual ~NodeBase() {
 
-        }
+    }
 
-        virtual std::string getTypeName() {
-            return "NONE";
-        }
+    virtual std::string getTypeName() {
+      return "NONE";
+    }
 
-        virtual std::string getValueString() {
-            return "NONE";
-        }
+    virtual std::string getValueString() {
+      return "NONE";
+    }
 
-        virtual void saveToFile(std::ostream & stream, std::string name, bool printName = true) = 0;
+    virtual void saveToFile(std::ostream & stream, std::string name, bool printName = true, int indent = 0) = 0;
 
-    protected:
+  protected:
 
-    private:
+  private:
 
 
 
-};
+  };
 
-template <typename T> class Node : public NodeBase {
+  template <typename T> class Node : public NodeBase {
 
-    public:
+  public:
 
-        Node(size_t elemCount, const T * data) {
-            this->elementCount = elemCount;
-            this->data = std::shared_ptr<T>(new T[elemCount], [] (T * p) {delete[] p;});
+    Node(size_t elemCount, const T * data) {
+      this->elementCount = elemCount;
+      this->data = std::shared_ptr<T>(new T[elemCount], [] (T * p) {delete[] p;});
 
-            for (unsigned int i = 0; i < elementCount; ++i) {
-                this->data.get()[i] = data[i];
-            }
+      for (unsigned int i = 0; i < elementCount; ++i) {
+	this->data.get()[i] = data[i];
+      }
 
-        }
+    }
 
-        virtual ~Node() {
+    virtual ~Node() {
 
-        }
+    }
 
-        T & operator[] (size_t i) {
-            return data.get()[i];
-        }
+    T & operator[] (size_t i) {
+      return data.get()[i];
+    }
 
-        const T & getElement(size_t i) {
-            return data.get()[i];
-        }
+    const T & getElement(size_t i) {
+      return data.get()[i];
+    }
 
-        std::shared_ptr<T> getRawData() {
-            return data;
-        }
+    std::shared_ptr<T> getRawData() {
+      return data;
+    }
 
-        std::string getTypeName() {
-            return getDemangledTypename(typeid(T));
-        }
+    std::string getTypeName() {
+      return getDemangledTypename(typeid(T));
+    }
 
-        size_t getElementCount() {
-        	return elementCount;
-        }
+    size_t getElementCount() {
+      return elementCount;
+    }
 
-        std::string getValueString() {
-            std::stringstream stream;
-            stream << "[";
-            for (unsigned int i = 0; i < elementCount-1; ++i) {
-                stream << data.get()[i] << ", ";
-            }
-            stream << data.get()[elementCount-1] << "]";
-            return stream.str();
-        }
+    std::string getValueString() {
+      std::stringstream stream;
+      stream << "[";
+      for (unsigned int i = 0; i < elementCount-1; ++i) {
+	stream << data.get()[i] << ", ";
+      }
+      stream << data.get()[elementCount-1] << "]";
+      return stream.str();
+    }
 
-        void saveToFile(std::ostream & stream, std::string name, bool printName = true) {
+    void saveToFile(std::ostream & stream, std::string name, bool printName = true, int indent = 0) {
 
-            stream << getFormatedTypename(typeid(T)) << " " << name << " = ";
+      for (int i = 0; i < indent; ++i)
+	stream << "  ";
 
-            if (elementCount == 1) {
+      stream << getFormatedTypename(typeid(T)) << " " << name << " = ";
 
-                stream << data.get()[0];
+      if (elementCount == 1) {
 
-            } else {
+	stream << data.get()[0];
 
-                stream << "[";
+      } else {
 
-                for (unsigned int i = 0; i < elementCount-1; ++i) {
+	stream << "[";
 
-                    stream << data.get()[i] << ", ";
+	for (unsigned int i = 0; i < elementCount-1; ++i) {
 
-                }
+	  stream << data.get()[i] << ", ";
 
-                stream << data.get()[elementCount-1];
+	}
 
-                stream << "]";
+	stream << data.get()[elementCount-1];
 
-            }
+	stream << "]";
 
-        }
+      }
 
-    protected:
+    }
 
-        size_t elementCount;
-        std::shared_ptr<T> data;
+  protected:
 
-};
+    size_t elementCount;
+    std::shared_ptr<T> data;
 
-class NodeCompound;
+  };
 
-template <> class Node<std::shared_ptr<NodeCompound>> : public NodeBase {
+  class NodeCompound;
 
-    public:
+  template <> class Node<std::shared_ptr<NodeCompound>> : public NodeBase {
 
-        Node(size_t elemCount, const std::shared_ptr<NodeCompound> * data) {
-            this->elementCount = elemCount;
-            this->data = std::shared_ptr<std::shared_ptr<NodeCompound>>(new std::shared_ptr<NodeCompound>[elemCount], [] (std::shared_ptr<NodeCompound> * p) {delete[] p;});
+  public:
 
-            for (unsigned int i = 0; i < elementCount; ++i) {
-                this->data.get()[i] = data[i];
-            }
+    Node(size_t elemCount, const std::shared_ptr<NodeCompound> * data) {
+      this->elementCount = elemCount;
+      this->data = std::shared_ptr<std::shared_ptr<NodeCompound>>(new std::shared_ptr<NodeCompound>[elemCount], [] (std::shared_ptr<NodeCompound> * p) {delete[] p;});
 
-        }
+      for (unsigned int i = 0; i < elementCount; ++i) {
+	this->data.get()[i] = data[i];
+      }
 
-        virtual ~Node() {
+    }
 
-        }
+    virtual ~Node() {
 
-        std::shared_ptr<NodeCompound> & operator[] (size_t i) {
-            return data.get()[i];
-        }
+    }
 
-        const std::shared_ptr<NodeCompound> & getElement(size_t i) {
-            return data.get()[i];
-        }
+    std::shared_ptr<NodeCompound> & operator[] (size_t i) {
+      return data.get()[i];
+    }
 
-        std::shared_ptr<std::shared_ptr<NodeCompound>> getRawData() {
-            return data;
-        }
+    const std::shared_ptr<NodeCompound> & getElement(size_t i) {
+      return data.get()[i];
+    }
 
-        std::string getTypeName() {
-            return getDemangledTypename(typeid(std::shared_ptr<NodeCompound>));
-        }
+    std::shared_ptr<std::shared_ptr<NodeCompound>> getRawData() {
+      return data;
+    }
 
-        size_t getElementCount() {
-        	return elementCount;
-        }
+    std::string getTypeName() {
+      return getDemangledTypename(typeid(std::shared_ptr<NodeCompound>));
+    }
 
-        std::string getValueString() {
-            std::stringstream stream;
-            stream << "[";
-            for (unsigned int i = 0; i < elementCount-1; ++i) {
-                stream << data.get()[i] << ", ";
-            }
-            stream << data.get()[elementCount-1] << "]";
-            return stream.str();
-        }
+    size_t getElementCount() {
+      return elementCount;
+    }
 
-        void saveToFile(std::ostream & stream, std::string name, bool printName = true) {
+    std::string getValueString() {
+      std::stringstream stream;
+      stream << "[";
+      for (unsigned int i = 0; i < elementCount-1; ++i) {
+	stream << data.get()[i] << ", ";
+      }
+      stream << data.get()[elementCount-1] << "]";
+      return stream.str();
+    }
 
-            stream << "comp " << name << " = ";
+    void saveToFile(std::ostream & stream, std::string name, bool printName = true, int indent = 0) {
 
-            if (elementCount == 1) {
+      for (int i = 0; i < indent; ++i)
+	stream << "  ";
 
-                std::dynamic_pointer_cast<NodeBase>(data.get()[0])->saveToFile(stream, "", false);
+      stream << "comp " << name << " = ";
 
-            } else {
+      if (elementCount == 1) {
 
-                stream << "[";
+	std::dynamic_pointer_cast<NodeBase>(data.get()[0])->saveToFile(stream, "", false, indent);
 
-                for (unsigned int i = 0; i < elementCount-1; ++i) {
+      } else {
 
-                    std::dynamic_pointer_cast<NodeBase>(data.get()[i])->saveToFile(stream, "", false);
-                    stream << ", " << std::endl;
+	stream << "[";
 
-                }
+	for (unsigned int i = 0; i < elementCount-1; ++i) {
 
-                std::dynamic_pointer_cast<NodeBase>(data.get()[elementCount-1])->saveToFile(stream, "", false);
+	  std::dynamic_pointer_cast<NodeBase>(data.get()[i])->saveToFile(stream, "", false, indent);
+	  stream << ", " << std::endl;
 
-                stream << "]";
+	}
 
-            }
+	std::dynamic_pointer_cast<NodeBase>(data.get()[elementCount-1])->saveToFile(stream, "", false, indent);
 
-        }
+	stream << "]";
 
-    protected:
+      }
 
-        size_t elementCount;
-        std::shared_ptr<std::shared_ptr<NodeCompound>> data;
+    }
 
-};
+  protected:
 
-class NodeCompound : public NodeBase {
+    size_t elementCount;
+    std::shared_ptr<std::shared_ptr<NodeCompound>> data;
 
-    public:
-        NodeCompound() {
+  };
 
-        }
+  class NodeCompound : public NodeBase {
 
-        virtual ~NodeCompound() {
+  public:
+    NodeCompound() {
 
-        }
+    }
 
-        std::shared_ptr<NodeBase> & operator[] (std::string name) {
-            return this->children[name];
-        }
+    virtual ~NodeCompound() {
 
-        void addChild(std::string name, std::shared_ptr<NodeBase> node) {
-            this->children[name] = node;
-        }
+    }
 
-        std::shared_ptr<NodeBase> getChild(std::string name) {
-            if (this->children.find(name) == children.end()) {
-                throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
-            }
-            return children[name];
-        }
+    std::shared_ptr<NodeBase> & operator[] (std::string name) {
+      return this->children[name];
+    }
 
-        bool hasChild(std::string name) {
-            return this->children.find(name) != this->children.end();
-        }
+    void addChild(std::string name, std::shared_ptr<NodeBase> node) {
+      this->children[name] = node;
+    }
 
-        template <typename T> std::shared_ptr<Node<T>> getNode(std::string name) {
-            if (this->children.find(name) == children.end()) {
-                throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
-            }
-                std::shared_ptr<Node<T>> tmp = std::dynamic_pointer_cast<Node<T>>(children[name]);
-                if (!tmp) {
+    std::shared_ptr<NodeBase> getChild(std::string name) {
+      if (this->children.find(name) == children.end()) {
+	throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+      }
+      return children[name];
+    }
 
-                    std::string msg("Child Node '");
-                    msg.append(name).append("' has wrong type: ");
-                    msg.append(children[name]->getTypeName());
-                    msg.append(" but requested was: ");
-                    msg.append(getDemangledTypename(typeid(T)));
+    bool hasChild(std::string name) {
+      return this->children.find(name) != this->children.end();
+    }
 
-                    throw std::runtime_error(msg);
-                }
-                return tmp;
+    template <typename T> std::shared_ptr<Node<T>> getNode(std::string name) {
+      if (this->children.find(name) == children.end()) {
+	throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+      }
+      std::shared_ptr<Node<T>> tmp = std::dynamic_pointer_cast<Node<T>>(children[name]);
+      if (!tmp) {
 
-        }
+	std::string msg("Child Node '");
+	msg.append(name).append("' has wrong type: ");
+	msg.append(children[name]->getTypeName());
+	msg.append(" but requested was: ");
+	msg.append(getDemangledTypename(typeid(T)));
 
-        std::shared_ptr<NodeCompound> getNodeCompound(std::string name) {
+	throw std::runtime_error(msg);
+      }
+      return tmp;
 
-            if (this->children.find(name) == children.end()) {
-                throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
-            }
+    }
 
-            std::shared_ptr<NodeCompound> tmp = std::dynamic_pointer_cast<NodeCompound>(children[name]);
-            std::cout << children[name]->getTypeName() << std::endl;
-            /*if (!tmp) {
-                throw std::runtime_error("Error while getting child compound!");
-            }*/
-            return tmp;
+    std::shared_ptr<NodeCompound> getNodeCompound(std::string name) {
 
-        }
+      if (this->children.find(name) == children.end()) {
+	throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+      }
 
-        std::shared_ptr<NodeCompound> getSubcompound(std::string name) {
+      std::shared_ptr<NodeCompound> tmp = std::dynamic_pointer_cast<NodeCompound>(children[name]);
+      std::cout << children[name]->getTypeName() << std::endl;
+      /*if (!tmp) {
+	throw std::runtime_error("Error while getting child compound!");
+	}*/
+      return tmp;
 
-            if (this->children.find(name) == children.end()) {
-                throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
-            }
+    }
 
-            std::cout << "Demangled name " << getDemangledTypename(typeid(children[name])) << std::endl;
+    std::shared_ptr<NodeCompound> getSubcompound(std::string name) {
 
-            Node<std::shared_ptr<NodeCompound>> * node = (Node<std::shared_ptr<NodeCompound>> *) children[name].get();
+      if (this->children.find(name) == children.end()) {
+	throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+      }
 
-            std::cout << "Node has " << node->getElementCount() << " elements" << std::endl;
+      std::cout << "Demangled name " << getDemangledTypename(typeid(children[name])) << std::endl;
 
-            return node->getElement(0);
+      Node<std::shared_ptr<NodeCompound>> * node = (Node<std::shared_ptr<NodeCompound>> *) children[name].get();
 
-        }
+      std::cout << "Node has " << node->getElementCount() << " elements" << std::endl;
 
-        std::string getTypeName() {
-            return getDemangledTypename(typeid(*this));
-        }
+      return node->getElement(0);
 
-        std::unordered_map<std::string, std::shared_ptr<NodeBase>> getChildMap() {
-            return children;
-        }
+    }
 
-        std::string getValueString() {
-            std::stringstream stream;
-            stream << "{" << std::endl;
-            for (auto it : children) {
-                stream << it.first << " : " << it.second << std::endl;
-            }
-            stream << "}";
-            return stream.str();
-        }
+    std::string getTypeName() {
+      return getDemangledTypename(typeid(*this));
+    }
 
-        void saveToFile(std::ostream & stream, std::string name, bool printName = true) {
+    std::unordered_map<std::string, std::shared_ptr<NodeBase>> getChildMap() {
+      return children;
+    }
 
-            if (printName)
-            stream << "comp " << name << " = ";
+    std::string getValueString() {
+      std::stringstream stream;
+      stream << "{" << std::endl;
+      for (auto it : children) {
+	stream << it.first << " : " << it.second << std::endl;
+      }
+      stream << "}";
+      return stream.str();
+    }
 
-            stream << "{" << std::endl;
+    void saveToFile(std::ostream & stream, std::string name, bool printName = true, int indent = 0) {
 
-            for (auto it : children) {
+      /*for (int i = 0; i < indent; ++i)
+	stream << "\t";*/
 
-                it.second->saveToFile(stream, it.first);
-                stream << std::endl;
+      if (printName)
+	stream << "comp " << name << " = ";
 
-            }
+      stream << "{" << std::endl;
 
-            stream << "}";
+      for (auto it : children) {
 
-        }
+	it.second->saveToFile(stream, it.first, true, indent+1);
+	stream << std::endl;
 
-        void saveAsFile(std::ostream & stream) {
+      }
 
-            for (auto it : children) {
+      stream << "}";
 
-                it.second->saveToFile(stream, it.first);
-                stream << std::endl;
+    }
 
-            }
+    void saveAsFile(std::ostream & stream) {
 
-        }
+      for (auto it : children) {
 
-    private:
+	it.second->saveToFile(stream, it.first, true, 0);
+	stream << std::endl;
 
-        std::unordered_map<std::string, std::shared_ptr<NodeBase>> children;
+      }
 
-};
+    }
 
-template <> class Node<char> : public NodeBase {
+  private:
 
-    public:
+    std::unordered_map<std::string, std::shared_ptr<NodeBase>> children;
 
-        Node(size_t elemCount, const char * data) {
-            this->elementCount = elemCount;
-            this->data = new char[elementCount];
+  };
 
-            for (unsigned int i = 0; i < elementCount; ++i) {
-                this->data[i] = data[i];
-            }
+  template <> class Node<char> : public NodeBase {
 
-        }
+  public:
 
-        virtual ~Node() {
+    Node(size_t elemCount, const char * data) {
+      this->elementCount = elemCount;
+      this->data = new char[elementCount];
 
-            delete[] data;
+      for (unsigned int i = 0; i < elementCount; ++i) {
+	this->data[i] = data[i];
+      }
 
-        }
+    }
 
-        char & operator[] (size_t i) {
-            return data[i];
-        }
+    virtual ~Node() {
 
-        char & getElement(unsigned int i) {
-            return data[i];
-        }
+      delete[] data;
 
-        const char * getRawData() {
-            return data;
-        }
+    }
 
-        std::string getTypeName() {
-            return getDemangledTypename(typeid(char));
-        }
+    char & operator[] (size_t i) {
+      return data[i];
+    }
 
-        size_t getElementCount() {
-        	return elementCount;
-        }
+    char & getElement(unsigned int i) {
+      return data[i];
+    }
 
-        std::string getValueString() {
-            return std::string(data);
-        }
+    const char * getRawData() {
+      return data;
+    }
 
-        void saveToFile(std::ostream & stream, std::string name, bool printName = true) {
+    std::string getTypeName() {
+      return getDemangledTypename(typeid(char));
+    }
 
-            if (printName) {
-                stream << "string " << name << " = ";
-            }
+    size_t getElementCount() {
+      return elementCount;
+    }
 
-            stream << "\"" << std::string(data) << "\"";
+    std::string getValueString() {
+      return std::string(data);
+    }
 
-        }
+    void saveToFile(std::ostream & stream, std::string name, bool printName = true, int indent = 0) {
 
-    protected:
+      for (int i = 0; i < indent; ++i)
+	stream << "  ";
+      
+      if (printName) {
+	stream << "string " << name << " = ";
+      }
 
-        size_t elementCount;
-        char * data;
+      stream << "\"" << std::string(data) << "\"";
 
-};
+    }
+
+  protected:
+
+    size_t elementCount;
+    char * data;
+
+  };
 
 }
 
