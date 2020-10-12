@@ -1,16 +1,16 @@
 #Configure flags etc.
-CFLAGS :=-g
-CXXFLAGS :=-g
+CFLAGS :=-g -fPIC
+CXXFLAGS :=-g -fPIC
 PROGNAME :=config
 
 LIBS := 
 
 # Finding source files
-C_FILES := $(shell find src/ -name "*.cpp" -or -name "*.cc" -or -name "*.c")# | sed ':a;N;$!ba;s/\n/ /g')
+C_FILES := $(shell find src/ -not -name "py_config.cpp" -name "*.cpp" -or -name "*.cc" -or -name "*.c")# | sed ':a;N;$!ba;s/\n/ /g')
 L_FILES := $(shell find src/ -name "*.l")
 Y_FILES := $(shell find src/ -name "*.y")
 
-INCLUDE_DIRS := ./src/ ./include/ #$(addsuffix /,$(shell find srclibs/ -name "include"))
+INCLUDE_DIRS := ./src/ ./include/ ./include_local/ #$(addsuffix /,$(shell find srclibs/ -name "include"))
 LIBRARY_DIRS := lib/linux_amd64/ #$(addsuffix /,$(shell find srclibs/ -name "lib"))
 
 # Toolchain-setup

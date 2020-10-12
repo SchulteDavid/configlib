@@ -37,7 +37,8 @@ namespace config {
       return "NONE";
     }
 
-    virtual void saveToFile(std::ostream & stream, std::string name, bool printName = true, int indent = 0) = 0;
+    virtual void saveToFile(std::ostream &stream, std::string name,
+                            bool printName = true, int indent = 0){};
 
   protected:
 
