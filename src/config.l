@@ -24,6 +24,10 @@ char * duplicateString(char * str);
 
 [0-9]*\.[0-9]*              {conflval.f = atof(conftext); return V_FLOAT;}
 -[0-9]*\.[0-9]*             {conflval.f = atof(conftext); return V_FLOAT;}
+[0-9]*\.[0-9]*e[0-9]+              {conflval.f = atof(conftext); return V_FLOAT;}
+-[0-9]*\.[0-9]*e[0-9+]             {conflval.f = atof(conftext); return V_FLOAT;}
+[0-9]*\.[0-9]*e-[0-9]+              {conflval.f = atof(conftext); return V_FLOAT;}
+-[0-9]*\.[0-9]*e-[0-9+]             {conflval.f = atof(conftext); return V_FLOAT;}
 
 \".*\"                      {conflval.str = duplicateString(conftext); return V_STRING;}
 
