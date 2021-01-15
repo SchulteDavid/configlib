@@ -360,11 +360,13 @@ namespace config {
 
     Node(size_t elemCount, const char * data) {
       this->elementCount = elemCount;
-      this->data = new char[elementCount];
+      this->data = new char[elementCount+1];
 
       for (unsigned int i = 0; i < elementCount; ++i) {
 	this->data[i] = data[i];
       }
+
+      this->data[elemCount] = 0;
 
     }
 
