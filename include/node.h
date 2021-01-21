@@ -188,26 +188,29 @@ namespace config {
 
       stream << "comp " << name << " = ";
 
-      if (elementCount == 1) {
+      /*if (elementCount == 1) {
 
 	std::dynamic_pointer_cast<NodeBase>(data.get()[0])->saveToFile(stream, "", false, indent);
 
-      } else {
+	} else {*/
 
-	stream << "[";
+      stream << "[" << std::endl;
 
-	for (unsigned int i = 0; i < elementCount-1; ++i) {
+      for (unsigned int i = 0; i < elementCount-1; ++i) {
 
-	  std::dynamic_pointer_cast<NodeBase>(data.get()[i])->saveToFile(stream, "", false, indent);
-	  stream << ", " << std::endl;
-
-	}
-
-	std::dynamic_pointer_cast<NodeBase>(data.get()[elementCount-1])->saveToFile(stream, "", false, indent);
-
-	stream << "]";
+	std::dynamic_pointer_cast<NodeBase>(data.get()[i])->saveToFile(stream, "", false, indent+1);
+	stream << ", " << std::endl;
 
       }
+
+      std::dynamic_pointer_cast<NodeBase>(data.get()[elementCount-1])->saveToFile(stream, "", false, indent+1);
+
+      stream << std::endl;
+      for (int i = 0; i < indent; ++i)
+	stream << "  ";
+      stream << "]";
+
+      //}
 
     }
 
@@ -321,8 +324,13 @@ namespace config {
       /*for (int i = 0; i < indent; ++i)
 	stream << "\t";*/
 
-      if (printName)
-	stream << "comp " << name << " = ";
+      
+      for (int i = 0; i < indent; ++i)
+	  stream << "  ";
+      
+      if(printName)
+        stream << "comp " << name << " = ";
+      
 
       stream << "{" << std::endl;
 
@@ -333,6 +341,10 @@ namespace config {
 
       }
 
+      //if (printName) {
+      for (int i = 0; i < indent; ++i)
+	stream << "  ";
+      //}
       stream << "}";
 
     }
