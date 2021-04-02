@@ -1,9 +1,9 @@
 #Configure flags etc.
 CFLAGS :=-g
-CXXFLAGS :=-g
+CXXFLAGS :=-g -std=c++17
 PROGNAME :=config
 
-LIBS := 
+LIBS := z
 
 # Finding source files
 C_FILES := $(shell find src/ -name "*.cpp" -or -name "*.cc" -or -name "*.c")# | sed ':a;N;$!ba;s/\n/ /g')

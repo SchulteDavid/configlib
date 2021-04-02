@@ -22,16 +22,20 @@ int main(int argc, char ** argv) {
 
   std::shared_ptr<Node<double>> test = comp->getNode<double>("dTest");
 
-  std::shared_ptr<NodeCompound> root = config::parseFile("test.conf");
-
-  /*std::cout << "testInt[0] : " << root->getNode<int32_t>("testInt")->getElement(0) << std::endl;
-  std::cout << "doubleVal[2] : " << root->getNode<double>("doubleVal")->getElement(2) << std::endl;
-
-  auto testCompArray = root->getNode<std::shared_ptr<NodeCompound>>("testCompArray");
-  std::cout << testCompArray->getElement(0)->getNode<int32_t>("test")->getElement(0) << std::endl;*/
+  std::shared_ptr<NodeCompound> root = config::load("bin.conf");
 
   std::ofstream out("out.conf");
-  root->saveAsFile(out);
+  config::save(root, out);
+
+  std::vector<uint8_t> compData = saveCompoundBinary(root);
+  std::ofstream binOut("out.bin", std::ios::binary);
+
+  binOut.write((char *)compData.data(), compData.size());
+
+  std::shared_ptr<NodeCompound> resComp = config::loadCompoundBinary(compData);
+
+  std::ofstream finalOut("bin.conf", std::ios::binary);
+  config::save(resComp, finalOut);
 
   out.close();
 

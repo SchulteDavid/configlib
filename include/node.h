@@ -8,6 +8,7 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
+#include <any>
 
 #include <cxxabi.h>
 
@@ -37,6 +38,14 @@ namespace config {
       return "NONE";
     }
 
+    virtual const std::type_info & getTypeId() = 0;
+
+    virtual size_t getElementCount() {
+      return 0;
+    }
+
+    template <typename T> const T & getElement(size_t i){};
+
     virtual void saveToFile(std::ostream & stream, std::string name, bool printName = true, int indent = 0) = 0;
 
   protected:
@@ -52,11 +61,11 @@ namespace config {
   public:
 
     Node(size_t elemCount, const T * data) {
-      this->elementCount = elemCount;
-      this->data = std::shared_ptr<T>(new T[elemCount], [] (T * p) {delete[] p;});
 
-      for (unsigned int i = 0; i < elementCount; ++i) {
-	this->data.get()[i] = data[i];
+      this->data = std::vector<std::any>(elemCount);
+
+      for (unsigned int i = 0; i < elemCount; ++i) {
+	this->data[i] = data[i];
       }
 
     }
@@ -65,15 +74,15 @@ namespace config {
 
     }
 
-    T & operator[] (size_t i) {
-      return data.get()[i];
+    T operator[] (size_t i) {
+      return std::any_cast<T>(data[i]);
     }
 
-    const T & getElement(size_t i) {
-      return data.get()[i];
+    const T getElement(size_t i) {
+      return std::any_cast<T>(data[i]);
     }
 
-    std::shared_ptr<T> getRawData() {
+    std::vector<std::any> & getRawData() {
       return data;
     }
 
@@ -82,16 +91,20 @@ namespace config {
     }
 
     size_t getElementCount() {
-      return elementCount;
+      return data.size();
+    }
+
+    const std::type_info & getTypeId() {
+      return typeid(T);
     }
 
     std::string getValueString() {
       std::stringstream stream;
       stream << "[";
-      for (unsigned int i = 0; i < elementCount-1; ++i) {
-	stream << data.get()[i] << ", ";
+      for (unsigned int i = 0; i < data.size()-1; ++i) {
+	stream << std::any_cast<T>(data[i]) << ", ";
       }
-      stream << data.get()[elementCount-1] << "]";
+      stream << std::any_cast<T>(data[data.size()-1]) << "]";
       return stream.str();
     }
 
@@ -102,21 +115,21 @@ namespace config {
 
       stream << getFormatedTypename(typeid(T)) << " " << name << " = ";
 
-      if (elementCount == 1) {
+      if (data.size() == 1) {
 
-	stream << data.get()[0];
+	stream << std::any_cast<T>(data[0]);
 
       } else {
 
 	stream << "[";
 
-	for (unsigned int i = 0; i < elementCount-1; ++i) {
+	for (unsigned int i = 0; i < data.size()-1; ++i) {
 
-	  stream << data.get()[i] << ", ";
+	  stream << std::any_cast<T>(data[i]) << ", ";
 
 	}
 
-	stream << data.get()[elementCount-1];
+	stream << std::any_cast<T>(data[data.size()-1]);
 
 	stream << "]";
 
@@ -126,8 +139,7 @@ namespace config {
 
   protected:
 
-    size_t elementCount;
-    std::shared_ptr<T> data;
+    std::vector<std::any> data;
 
   };
 
@@ -138,11 +150,11 @@ namespace config {
   public:
 
     Node(size_t elemCount, const std::shared_ptr<NodeCompound> * data) {
-      this->elementCount = elemCount;
-      this->data = std::shared_ptr<std::shared_ptr<NodeCompound>>(new std::shared_ptr<NodeCompound>[elemCount], [] (std::shared_ptr<NodeCompound> * p) {delete[] p;});
 
-      for (unsigned int i = 0; i < elementCount; ++i) {
-	this->data.get()[i] = data[i];
+      this->data = std::vector<std::shared_ptr<NodeCompound>>(elemCount);
+
+      for (unsigned int i = 0; i < elemCount; ++i) {
+	this->data[i] = data[i];
       }
 
     }
@@ -152,14 +164,14 @@ namespace config {
     }
 
     std::shared_ptr<NodeCompound> & operator[] (size_t i) {
-      return data.get()[i];
+      return data[i];
     }
 
     const std::shared_ptr<NodeCompound> & getElement(size_t i) {
-      return data.get()[i];
+      return data[i];
     }
 
-    std::shared_ptr<std::shared_ptr<NodeCompound>> getRawData() {
+    std::vector<std::shared_ptr<NodeCompound>> & getRawData() {
       return data;
     }
 
@@ -168,16 +180,16 @@ namespace config {
     }
 
     size_t getElementCount() {
-      return elementCount;
+      return data.size();
     }
 
     std::string getValueString() {
       std::stringstream stream;
       stream << "[";
-      for (unsigned int i = 0; i < elementCount-1; ++i) {
-	stream << data.get()[i] << ", ";
+      for (unsigned int i = 0; i < data.size()-1; ++i) {
+	stream << data[i] << ", ";
       }
-      stream << data.get()[elementCount-1] << "]";
+      stream << data[data.size()-1] << "]";
       return stream.str();
     }
 
@@ -188,36 +200,32 @@ namespace config {
 
       stream << "comp " << name << " = ";
 
-      /*if (elementCount == 1) {
-
-	std::dynamic_pointer_cast<NodeBase>(data.get()[0])->saveToFile(stream, "", false, indent);
-
-	} else {*/
-
       stream << "[" << std::endl;
 
-      for (unsigned int i = 0; i < elementCount-1; ++i) {
+      for (unsigned int i = 0; i < data.size()-1; ++i) {
 
-	std::dynamic_pointer_cast<NodeBase>(data.get()[i])->saveToFile(stream, "", false, indent+1);
+	std::dynamic_pointer_cast<NodeBase>(data[i])->saveToFile(stream, "", false, indent+1);
 	stream << ", " << std::endl;
 
       }
 
-      std::dynamic_pointer_cast<NodeBase>(data.get()[elementCount-1])->saveToFile(stream, "", false, indent+1);
+      std::dynamic_pointer_cast<NodeBase>(data[data.size()-1])->saveToFile(stream, "", false, indent+1);
 
       stream << std::endl;
       for (int i = 0; i < indent; ++i)
 	stream << "  ";
       stream << "]";
 
-      //}
 
+    }
+
+    const std::type_info & getTypeId() {
+      return typeid(void);
     }
 
   protected:
 
-    size_t elementCount;
-    std::shared_ptr<std::shared_ptr<NodeCompound>> data;
+    std::vector<std::shared_ptr<NodeCompound>> data;
 
   };
 
@@ -277,10 +285,6 @@ namespace config {
       }
 
       std::shared_ptr<NodeCompound> tmp = std::dynamic_pointer_cast<NodeCompound>(children[name]);
-      std::cout << children[name]->getTypeName() << std::endl;
-      /*if (!tmp) {
-	throw std::runtime_error("Error while getting child compound!");
-	}*/
       return tmp;
 
     }
@@ -360,6 +364,10 @@ namespace config {
 
     }
 
+    const std::type_info & getTypeId() {
+      return typeid(void);
+    }
+
   private:
 
     std::unordered_map<std::string, std::shared_ptr<NodeBase>> children;
@@ -423,6 +431,10 @@ namespace config {
 
       stream << "\"" << std::string(data) << "\"";
 
+    }
+
+    const std::type_info & getTypeId() {
+      return typeid(char);
     }
 
   protected:

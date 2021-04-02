@@ -2,6 +2,7 @@
 
 #include <node.h>
 #include <iostream>
+#include <fstream>
 #include <string.h>
 
 #include <configloading.h>
@@ -42,6 +43,7 @@ std::string config::getFormatedTypename(const std::type_info & typeinfo) {
   else if (typeinfo == typeid(char))
     return std::string("string");
 
+  return "";
 
 }
 
@@ -343,17 +345,32 @@ extern "C" FILE * confin;
 
 extern "C" void flushConfBuffer();
 
-std::shared_ptr<NodeCompound> config::parseFile(std::string fname) {
+std::shared_ptr<NodeCompound> config::load(std::string fname) {
 
   std::cout << "Parsing " << fname << std::endl;
 
   //
   confin = fopen(fname.c_str(), "r");
 
+  // Check to see if file is binary
+  char test[5];
+  fread(test, sizeof(char), 4, confin);
+  test[4] = 0;
+
+  if (!strcmp(test, "#BIN")) {
+
+    fclose(confin);
+    return loadFileBinary(fname);
+    
+  } else {
+
+    fseek(confin, 0, SEEK_SET);
+    
+  }
+  
   node_list_t * tmpList;
   confline = 1;
 
-  //flushConfBuffer();
 
   std::cout << "Starting parser" << std::endl;
 
@@ -362,8 +379,6 @@ std::shared_ptr<NodeCompound> config::parseFile(std::string fname) {
   std::cout << "conf data gotten" << std::endl;
 
   fclose(confin);
-
-  //flushConfBuffer();
 
   std::shared_ptr<NodeCompound> node(new NodeCompound());
   for (node_t n : tmpList->nodes) {
@@ -431,8 +446,16 @@ void onParserError(char * msg) {
 
 }
 
-void config::save(std::shared_ptr<NodeCompound> node, std::ostream & file) {
+void config::save(std::shared_ptr<NodeCompound> node, std::ostream & file, bool binary) {
 
-  node->saveAsFile(file);
+  static char magic[5] = "#BIN";
   
+  if (binary) {
+    file.write(magic, 4);
+    std::vector<uint8_t> data = saveCompoundBinary(node);
+    file.write((char *) data.data(), data.size() * sizeof(uint8_t));
+  }
+  else {
+    node->saveAsFile(file);
+  }
 }
