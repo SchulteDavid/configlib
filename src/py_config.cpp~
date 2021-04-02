@@ -1,0 +1,14 @@
+#include "configloading.h"
+#include "node.h"
+
+using namespace config;
+
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
+
+PYBIND11_MODULE(config, m) {
+
+  
+  
+}

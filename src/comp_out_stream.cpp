@@ -1,0 +1,106 @@
+#include "comp_out_stream.h"
+
+#include <zlib.h>
+#include <iostream>
+
+comp_out_stream::comp_out_stream(const comp_out_stream & stream) {
+
+  this->data.insert(data.end(), stream.data.begin(), stream.data.end());
+  
+}
+
+template <> comp_out_stream & operator << <char *> (comp_out_stream & stream, char * str) {
+  
+  size_t i = 0;
+  while (str[i]) {
+    stream << str[i];
+    ++i;
+  }
+
+  stream << (char) 0;
+  
+  return stream;
+}
+
+template <> comp_out_stream & operator << <const char *> (comp_out_stream & stream, const char * str) {
+  
+  size_t i = 0;
+  while (str[i]) {
+    stream << str[i];
+    ++i;
+  }
+
+  stream << (char) 0;
+  
+  return stream;
+}
+
+template <> comp_out_stream & operator << <const std::string &> (comp_out_stream & stream, const std::string & str) {
+  
+  return stream << str.c_str();
+  
+}
+
+template <> comp_out_stream & operator << <std::string &> (comp_out_stream & stream, std::string & str) {
+  
+  return stream << str.c_str();
+  
+}
+
+template <> comp_out_stream & operator << <std::string> (comp_out_stream & stream, std::string str) {
+  
+  return stream << str.c_str();
+  
+}
+
+template <> comp_out_stream & operator << <const comp_out_stream &> (comp_out_stream & stream, const comp_out_stream & str) {
+
+  stream.absorb(str);
+  return stream;
+  
+}
+
+void comp_out_stream::absorb(const comp_out_stream & stream) {
+
+  data.insert(data.end(), stream.data.begin(), stream.data.end());
+  
+}
+
+std::vector<uint8_t> comp_out_stream::getCompressedData() {
+
+  std::vector<uint8_t> tmp(data.size());
+  
+  z_stream stream;
+  stream.zalloc = Z_NULL;
+  stream.zfree = Z_NULL;
+  stream.opaque = Z_NULL;
+
+  stream.avail_in = data.size();
+  stream.next_in = data.data();
+  stream.avail_out = data.size();
+  stream.next_out = tmp.data();
+
+  deflateInit(&stream, Z_BEST_COMPRESSION);
+  deflate(&stream, Z_FINISH);
+  deflateEnd(&stream);
+
+  std::vector<uint8_t> res(stream.total_out + sizeof(size_t));
+  size_t decompSize = data.size();
+  for (size_t i = 0; i < sizeof(size_t); ++i) {
+    res[i] = ((uint8_t *) &decompSize)[i];
+  }
+  for (size_t i = 0; i < stream.total_out; ++i) {
+    res[i + sizeof(size_t)] = tmp[i];
+  }
+
+  return res;
+  
+}
+
+void comp_out_stream::push(uint8_t e) {
+  data.push_back(e);
+}
+
+std::vector<uint8_t> comp_out_stream::getRawData() {
+  return data;
+}

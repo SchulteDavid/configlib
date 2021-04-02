@@ -1,0 +1,80 @@
+#include <node.h>
+
+#include "comp_in_stream.h"
+#include "comp_out_stream.h"
+
+namespace config {
+
+  enum FileTypeId : uint8_t {
+		   NONE,
+		   INT32,
+		   INT64,
+		   FLOAT32,
+		   FLOAT64,
+		   STRING,
+		   
+  };
+  
+  template <typename T> void saveNodeToStream(std::shared_ptr<Node<T>> node, comp_out_stream & stream);
+  void saveCompoundToStream(std::shared_ptr<NodeCompound> comp, comp_out_stream & stream);
+  
+};
+
+using namespace config;
+
+static FileTypeId getFileIdType(const std::type_info & typeinfo) {
+
+  if (typeinfo == typeid(int32_t))
+    return INT32;
+  else if (typeinfo == typeid(int64_t))
+    return INT64;
+  else if (typeinfo == typeid(float))
+    return FLOAT32;
+  else if (typeinfo == typeid(double))
+    return FLOAT64;
+  else if (typeinfo == typeid(char))
+    return STRING;
+
+  return NONE;
+  
+}
+
+template <typename T> void config::saveNodeToStream(std::shared_ptr<Node<T>> node, comp_out_stream & stream) {
+
+  FileTypeId typeId = getFileIdType(node->getTypeId());
+  stream << typeId;
+
+  stream << (uint64_t) node->getElementCount();
+
+  for (size_t i = 0; i < node->getElementCount(); ++i) {
+    stream << node->getElement(i);
+  }
+  
+}
+
+void config::saveCompoundToStream(std::shared_ptr<NodeCompound> comp, comp_out_stream & stream) {
+
+  for (auto it : comp->getChildMap()) {
+
+    stream << it.first;
+    std::shared_ptr<NodeCompound> childCompound = std::dynamic_pointer_cast<NodeCompound>(it.second);
+
+    if (childCompound) {
+      saveCompoundToStream(childCompound, stream);
+    } else {
+
+      FileTypeId typeId = getFileIdType(it.second->getTypeId());
+
+      switch (typeId) {
+
+      case INT32:
+	saveNodeToStream<int32_t>(std::dynamic_pointer_cast<Node<int32_t>>(it.second), stream);
+	break;
+	
+      }
+      
+    }
+    
+  }
+  
+}
