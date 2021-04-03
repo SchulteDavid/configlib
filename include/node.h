@@ -70,6 +70,10 @@ namespace config {
 
     }
 
+    Node(const std::vector<T> data) : Node(data.size(), data.data()) {
+
+    }
+
     virtual ~Node() {
 
     }
@@ -135,6 +139,14 @@ namespace config {
 
       }
 
+    }
+
+    std::vector<T> getAsVector() {
+      std::vector<T> res(data.size());
+      for (size_t i = 0; i < data.size(); ++i) {
+	res[i] = std::any_cast<T>(data[i]);
+      }
+      return res;
     }
 
   protected:

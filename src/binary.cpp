@@ -10,6 +10,8 @@ namespace config {
 
   enum FileTypeId : uint8_t {
 		   NONE,
+		   INT8,
+		   INT16,
 		   INT32,
 		   INT64,
 		   FLOAT32,
@@ -54,7 +56,11 @@ using namespace config;
 
 static FileTypeId getFileIdType(const std::type_info & typeinfo) {
 
-  if (typeinfo == typeid(int32_t))
+  if (typeinfo == typeid(int8_t))
+    return INT8;
+  else if (typeinfo == typeid(int16_t))
+    return INT16;
+  else if (typeinfo == typeid(int32_t))
     return INT32;
   else if (typeinfo == typeid(int64_t))
     return INT64;
@@ -112,8 +118,6 @@ void config::saveCompoundContentsToStream(std::shared_ptr<NodeCompound> comp, co
 
     stream << it.first;
 
-    std::cout << "Child '" << it.first << "'type: " << getDemangledTypename(it.second->getTypeId()) << std::endl;
-
     if (std::shared_ptr<NodeCompound> childCompound = std::dynamic_pointer_cast<NodeCompound>(it.second)) {
       saveCompoundToStream(childCompound, stream);
     } else if (std::shared_ptr<Node<std::shared_ptr<NodeCompound>>> childCompArray = std::dynamic_pointer_cast<Node<std::shared_ptr<NodeCompound>>>(it.second)) {
@@ -126,6 +130,14 @@ void config::saveCompoundContentsToStream(std::shared_ptr<NodeCompound> comp, co
 
       switch (typeId) {
 
+      case INT8:
+	saveNodeToStream<int8_t>(std::dynamic_pointer_cast<Node<int8_t>>(it.second), stream);
+	break;
+
+      case INT16:
+	saveNodeToStream<int8_t>(std::dynamic_pointer_cast<Node<int8_t>>(it.second), stream);
+	break;
+	
       case INT32:
 	saveNodeToStream<int32_t>(std::dynamic_pointer_cast<Node<int32_t>>(it.second), stream);
 	break;
@@ -199,8 +211,6 @@ void config::loadCompoundContentsFromStream(comp_in_stream & stream, std::shared
 
   size_t mapSize;
   stream >> mapSize;
-
-  std::cout << "Compound has " << mapSize << " children" << std::endl;
   
   for (size_t i = 0; i < mapSize; ++i) {
 
@@ -214,6 +224,14 @@ void config::loadCompoundContentsFromStream(comp_in_stream & stream, std::shared
     
     switch(typeField.dataType) {
 
+    case INT8:
+      child = loadNodeFromStream<int8_t>(stream, typeField);
+      break;
+
+    case INT16:
+      child = loadNodeFromStream<int16_t>(stream, typeField);
+      break;
+      
     case INT32:
       child = loadNodeFromStream<int32_t>(stream, typeField);
       break;

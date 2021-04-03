@@ -32,7 +32,11 @@ std::string config::getDemangledTypename(const std::type_info & typeinfo) {
 
 std::string config::getFormatedTypename(const std::type_info & typeinfo) {
 
-  if (typeinfo == typeid(int32_t))
+  if (typeinfo == typeid(int8_t))
+    return std::string("int8");
+  else if (typeinfo == typeid(int16_t))
+    return std::string("int16");
+  else if (typeinfo == typeid(int32_t))
     return std::string("int32");
   else if (typeinfo == typeid(int64_t))
     return std::string("int64");
@@ -52,7 +56,13 @@ std::shared_ptr<NodeBase> buildIntNode(VALUE_TYPE_E type, value_t value) {
   switch (value.type) {
 
   case TYPE_INT64:
-    if (type == TYPE_INT32) {
+    if (type == TYPE_INT8) {
+      int8_t i = value.v.i;
+      return std::make_shared<Node<int8_t>>(1, &i);
+    } else if (type == TYPE_INT16) {
+      int16_t i = value.v.i;
+      return std::make_shared<Node<int16_t>>(1, &i);
+    } else if (type == TYPE_INT32) {
       int i = value.v.i;
       return std::shared_ptr<NodeBase>(new Node<int32_t>(1, &i));
     } else {
@@ -213,7 +223,7 @@ std::shared_ptr<NodeBase> buildFloatNodeList(VALUE_TYPE_E type, value_list_t * v
 	throw std::runtime_error("Wrong type in double array!");
       }
 
-      if (values->values[i].type == TYPE_INT64 || values->values[i].type == TYPE_INT32) {
+      if (values->values[i].type == TYPE_INT64 || values->values[i].type == TYPE_INT32 || values->values[i].type == TYPE_INT16 || values->values[i].type == TYPE_INT8) {
 
 	tmpData[i] = values->values[i].v.i;
 
@@ -256,6 +266,8 @@ node_t * buildNodeList(VALUE_TYPE_E type, char * name, value_list_t * values) {
 
   switch (type) {
 
+  case TYPE_INT8:
+  case TYPE_INT16:
   case TYPE_INT32:
   case TYPE_INT64:
     node = buildIntNodeList(type, values);
@@ -292,6 +304,8 @@ node_t * buildNode(VALUE_TYPE_E type, char * name, value_t value) {
 
   switch (type) {
 
+  case TYPE_INT8:
+  case TYPE_INT16:
   case TYPE_INT32:
   case TYPE_INT64:
     node = buildIntNode(type, value);

@@ -7,13 +7,15 @@ typedef struct value_list_t value_list_t;
 
 typedef enum value_type_e {
 
-    TYPE_INT32,
-    TYPE_INT64,
-    TYPE_FLOAT32,
-    TYPE_FLOAT64,
-    TYPE_STRING,
-    TYPE_COMPOUND,
-    TYPE_LIST
+			   TYPE_INT8,
+			   TYPE_INT16,
+			   TYPE_INT32,
+			   TYPE_INT64,
+			   TYPE_FLOAT32,
+			   TYPE_FLOAT64,
+			   TYPE_STRING,
+			   TYPE_COMPOUND,
+			   TYPE_LIST
 
 } VALUE_TYPE_E ;
 

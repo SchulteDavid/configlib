@@ -12,6 +12,8 @@ char * duplicateString(char * str);
 
 %%
 
+"int8"                      {conflval.value_type = TYPE_INT8; return TYPE;}
+"int16"                     {conflval.value_type = TYPE_INT16; return TYPE;}
 "int32"                     {conflval.value_type = TYPE_INT32; return TYPE;}
 "int64"                     {conflval.value_type = TYPE_INT64; return TYPE;}
 "float32"                   {conflval.value_type = TYPE_FLOAT32; return TYPE;}
