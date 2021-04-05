@@ -119,7 +119,9 @@ void config::saveCompoundContentsToStream(std::shared_ptr<NodeCompound> comp, co
     stream << it.first;
 
     if (std::shared_ptr<NodeCompound> childCompound = std::dynamic_pointer_cast<NodeCompound>(it.second)) {
+      
       saveCompoundToStream(childCompound, stream);
+      
     } else if (std::shared_ptr<Node<std::shared_ptr<NodeCompound>>> childCompArray = std::dynamic_pointer_cast<Node<std::shared_ptr<NodeCompound>>>(it.second)) {
 
       saveCompoundArrayToStream(childCompArray, stream);
