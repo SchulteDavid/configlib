@@ -29,7 +29,7 @@ namespace config {
 
     FileTypeField(FileTypeId type, size_t size) {
 
-      isArray = size > 1;
+      isArray = size > 1 || !size;
       dataType = type & 0x7f;
       
     }
@@ -77,7 +77,10 @@ static FileTypeId getFileIdType(const std::type_info & typeinfo) {
 
 static FileTypeField getTypeField(const std::type_info & typeinfo, size_t nodeSize) {
 
-  return FileTypeField(getFileIdType(typeinfo), nodeSize);
+  FileTypeId id = getFileIdType(typeinfo);
+  if (id == FileTypeId::NONE)
+    throw std::runtime_error("Unknown type for saving");
+  return FileTypeField(id, nodeSize);
   
 }
 
@@ -201,6 +204,7 @@ template <typename T> std::shared_ptr<Node<T>> config::loadNodeFromStream(comp_i
     stream >> elementCount;
 
   std::vector<T> data(elementCount);
+  std::cout << "Array has " << elementCount << " elements" << std::endl;
   for (size_t i = 0; i < elementCount; ++i) {
     stream >> data[i];
   }
@@ -317,7 +321,7 @@ std::shared_ptr<NodeCompound> config::loadFileBinary(std::string fname) {
   
   std::vector<uint8_t> data(size);
   inStream.read((char*) data.data(), size);
-
+  
   return loadCompoundBinary(data);
   
 }
