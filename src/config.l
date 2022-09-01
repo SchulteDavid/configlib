@@ -32,6 +32,7 @@ char * duplicateString(char * str);
 -[0-9]*\.[0-9]*e-[0-9]+             {conflval.f = atof(conftext); return V_FLOAT;}
 
 \".*\"                      {conflval.str = duplicateString(conftext); return V_STRING;}
+\#.*\n                      {confline++;}
 
 [a-zA-Z\_][a-zA-Z\_0-9]*    {conflval.str = duplicateString(conftext); return NAME;}
 
