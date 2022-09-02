@@ -261,7 +261,6 @@ namespace config {
     }
 
     template <typename T> void add(std::string name, const T & data) {
-      std::cout << "Using template to attach " << name << ": " << data << std::endl;
       children[name] = std::make_shared<config::Node<T>>(1, &data);
     }
 
@@ -271,23 +270,23 @@ namespace config {
 
     std::shared_ptr<NodeBase> getChild(std::string name) {
       if (this->children.find(name) == children.end()) {
-	throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+	      throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
       }
       return children[name];
     }
 
-    template <typename T> const T & get(std::string name) {
+    template <typename T> const T get(std::string name) {
       if (this->children.find(name) == children.end())
-	throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+	      throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
       std::shared_ptr<Node<T>> node = std::dynamic_pointer_cast<Node<T>>(children[name]);
       if (!node) {
-	std::string msg("Child Node '");
-	msg.append(name).append("' has wrong type: ");
-	msg.append(children[name]->getTypeName());
-	msg.append(" but requested was: ");
-	msg.append(getDemangledTypename(typeid(T)));
+        std::string msg("Child Node '");
+        msg.append(name).append("' has wrong type: ");
+        msg.append(children[name]->getTypeName());
+        msg.append(" but requested was: ");
+        msg.append(getDemangledTypename(typeid(T)));
 
-	throw std::runtime_error(msg);
+	      throw std::runtime_error(msg);
       }
 
       return node->getElement(0);	
@@ -299,18 +298,18 @@ namespace config {
 
     template <typename T> std::shared_ptr<Node<T>> getNode(std::string name) {
       if (this->children.find(name) == children.end()) {
-	throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+	      throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
       }
       std::shared_ptr<Node<T>> tmp = std::dynamic_pointer_cast<Node<T>>(children[name]);
       if (!tmp) {
 
-	std::string msg("Child Node '");
-	msg.append(name).append("' has wrong type: ");
-	msg.append(children[name]->getTypeName());
-	msg.append(" but requested was: ");
-	msg.append(getDemangledTypename(typeid(T)));
+        std::string msg("Child Node '");
+        msg.append(name).append("' has wrong type: ");
+        msg.append(children[name]->getTypeName());
+        msg.append(" but requested was: ");
+        msg.append(getDemangledTypename(typeid(T)));
 
-	throw std::runtime_error(msg);
+        throw std::runtime_error(msg);
       }
       return tmp;
 
@@ -319,7 +318,7 @@ namespace config {
     std::shared_ptr<NodeCompound> getNodeCompound(std::string name) {
 
       if (this->children.find(name) == children.end()) {
-	throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+	      throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
       }
 
       std::shared_ptr<NodeCompound> tmp = std::dynamic_pointer_cast<NodeCompound>(children[name]);
@@ -330,7 +329,7 @@ namespace config {
     std::shared_ptr<NodeCompound> getSubcompound(std::string name) {
 
       if (this->children.find(name) == children.end()) {
-	throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
+	      throw std::runtime_error(std::string("No such child Node '").append(name).append("'"));
       }
 
       std::cout << "Demangled name " << getDemangledTypename(typeid(children[name])) << std::endl;

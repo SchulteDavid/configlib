@@ -1,6 +1,6 @@
 #Configure flags etc.
-CFLAGS :=-g
-CXXFLAGS :=-g -std=c++17
+CFLAGS :=-g -fPIC
+CXXFLAGS :=-g -std=c++17 -fPIC
 PROGNAME :=config
 
 LIBS := z
